@@ -1,16 +1,16 @@
 from django.contrib import admin
 from shop.models import CompanyConfig, Category, Product
 
+
 class CompanyConfigAdmin(admin.ModelAdmin):
-    list_display = ('company_name', 'company_phone_number')
+    list_display = ('business_name', 'phone_number')
 
     def has_add_permission(self, request):
         return not CompanyConfig.objects.exists()
-    
-    def has_delete_permission(self, request, obj = ...):
+
+    def has_delete_permission(self, request):
         return False
 
-    
 
 # Register your models here.
 admin.site.register(CompanyConfig, CompanyConfigAdmin)

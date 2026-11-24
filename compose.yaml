@@ -23,8 +23,8 @@ services:
     image: postgres:18
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: placement_portal
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: irelectronics
     volumes:
       - db_data:/var/lib/postgresql
     ports:
