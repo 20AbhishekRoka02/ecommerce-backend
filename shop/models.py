@@ -1,15 +1,16 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 # Create your models here.
 class CompanyConfig(models.Model):
     business_name = models.CharField()
     tagline = models.CharField()
-    logo = models.ImageField(upload_to="media/assets/")
-    favicon = models.ImageField(upload_to="media/assets/")
+    logo = models.ImageField(upload_to="assets/")
+    favicon = models.ImageField(upload_to="assets/")
     hero_badge_text = models.CharField()
     hero_title = models.CharField()
-    hero_background_image = models.ImageField(upload_to="media/assets/")
+    hero_background_image = models.ImageField(upload_to="assets/")
     phone_number = models.CharField()
     whatsapp_number = models.CharField()
     email = models.EmailField()
@@ -23,12 +24,19 @@ class CompanyConfig(models.Model):
 
 class Category(models.Model):
     name = models.CharField()
-    slug = models.SlugField()
-    image = models.ImageField(upload_to="media/cateogry/", blank=True,
+    slug = models.SlugField(unique=True, editable=False, blank=True)
+    image = models.ImageField(upload_to="cateogry/", blank=True,
                               null=True)
     display_order = models.PositiveIntegerField()
     is_active = models.BooleanField()
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name}"
 
 class Product(models.Model):
     class BadgeChoice(models.TextChoices):
@@ -38,7 +46,7 @@ class Product(models.Model):
         BEST_SELLER = "Best Seller", ("Best Seller")
 
     title = models.CharField()
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True, editable=False, blank=True)
     sku = models.CharField(db_index=True)
     category = models.ForeignKey(Category, related_name="products",
                                  on_delete=models.CASCADE)
@@ -50,6 +58,13 @@ class Product(models.Model):
     is_featured = models.BooleanField()
     is_active = models.BooleanField()
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.title}"
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE,
