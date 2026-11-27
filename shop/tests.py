@@ -1,10 +1,12 @@
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 
 from django.core.management import call_command
 from django.test import SimpleTestCase, TestCase, override_settings
 from shop.models import Category, CompanyConfig, Product, ProductImage
+from shop.serializers import ProductSerializer
 
 
 class MediaFilesTests(SimpleTestCase):
@@ -46,6 +48,60 @@ class MediaFilesTests(SimpleTestCase):
                     )
                 finally:
                     response.close()
+
+
+class ProductSerializerTests(SimpleTestCase):
+    def test_product_includes_ordered_image_details(self):
+        category = SimpleNamespace(
+            id=3,
+            name="Sensors",
+            slug="sensors",
+            image=None,
+            display_order=1,
+            is_active=True,
+        )
+        product = SimpleNamespace(
+            id=12,
+            title="Sensor Module",
+            slug="sensor-module",
+            sku="SNS-001",
+            category=category,
+            moq="10 Pcs",
+            badge=None,
+            short_description="Industrial sensor module",
+            specifications={"Output": "4-20mA"},
+            is_featured=False,
+            is_active=True,
+            images=[
+                SimpleNamespace(
+                    id=21,
+                    image=SimpleNamespace(
+                        url="http://testserver/media/products/first.png"
+                    ),
+                    alt_text="Front view",
+                    sort_order=0,
+                ),
+                SimpleNamespace(
+                    id=22,
+                    image=SimpleNamespace(
+                        url="http://testserver/media/products/second.png"
+                    ),
+                    alt_text="Back view",
+                    sort_order=1,
+                ),
+            ],
+        )
+
+        data = ProductSerializer(product).data
+
+        self.assertEqual(len(data["images"]), 2)
+        self.assertEqual(data["images"][0]["id"], 21)
+        self.assertEqual(
+            data["images"][0]["image"],
+            "http://testserver/media/products/first.png",
+        )
+        self.assertEqual(data["images"][0]["alt_text"], "Front view")
+        self.assertEqual(data["images"][1]["sort_order"], 1)
 
 
 class SlugifyOnSaveTests(TestCase):

@@ -86,6 +86,20 @@ configuration list responses are plain JSON arrays, not paginated objects.
   "moq": "25 Units",
   "badge": "Bulk Deal",
   "short_description": "Heavy-duty industrial power supply.",
+  "images": [
+    {
+      "id": 41,
+      "image": "http://localhost:8000/media/products/2026/11/product-front.png",
+      "alt_text": "Front view",
+      "sort_order": 0
+    },
+    {
+      "id": 42,
+      "image": "http://localhost:8000/media/products/2026/11/product-back.png",
+      "alt_text": "Back view",
+      "sort_order": 1
+    }
+  ],
   "specifications": {
     "Input Voltage": "180-264V AC",
     "Output": "24V DC / 10A (240W)"
@@ -99,11 +113,10 @@ The category is nested in each product response. `badge` can be `null` or one
 of `"New Arrival"`, `"Bulk Deal"`, `"Trending"`, or `"Best Seller"`.
 `specifications` is JSON and its keys depend on each product.
 
-**Known limitation:** the `ProductImage` model supports multiple ordered
-images, but the current `ProductSerializer` does not include that relation.
-Therefore product responses currently have no `images` field or product image
-URLs. The frontend cannot build a product image gallery from this API until
-that relation is exposed by the backend.
+`images` is an array of the product's image records. Each item contains its
+database `id`, an `image` URL, optional `alt_text` (empty string when unset),
+and `sort_order`. Images are returned by ascending `sort_order`, with ID as a
+tie-breaker. An empty array means no product images are available.
 
 ### Category
 
@@ -147,8 +160,8 @@ enforce that singleton and the frontend should handle an empty array.
 ## Images
 
 Image fields on category and company configuration responses are URLs generated
-by Django. Use those URLs directly as image sources; do not prepend `/media/`
-again. For example, a stored category image name
+by Django. Product image fields are also URLs. Use those URLs directly as image
+sources; do not prepend `/media/` again. For example, a stored category image name
 `cateogry/power-supplies.png` is served from
 `/media/cateogry/power-supplies.png`.
 
@@ -191,5 +204,4 @@ python manage.py seed_sample_data
 ```
 
 The seed command creates example business configuration, categories, products,
-and product-image records. Note that product-image records are not currently
-included in product API responses.
+and product-image records.

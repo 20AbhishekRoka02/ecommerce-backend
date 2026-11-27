@@ -8,7 +8,7 @@ class CompanyConfigAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return not CompanyConfig.objects.exists()
 
-    def has_delete_permission(self, request):
+    def has_delete_permission(self, request, obj=None):
         return False
 
 
